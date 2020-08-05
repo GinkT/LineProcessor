@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 )
 
 //type DBStorage struct {
@@ -46,7 +47,7 @@ func PutSportLine(db *sql.DB, sportname string, ratiovalue string) {
 	}
 }
 
-func GetSportRatio(db *sql.DB, sportname string) string {
+func GetSportRatio(db *sql.DB, sportname string) float64 {
 	sqlStatement := `
 			SELECT "SportRatio" FROM public.` + `"` + sportname + `"`
 
@@ -60,8 +61,9 @@ func GetSportRatio(db *sql.DB, sportname string) string {
 		if err := rows.Scan(&ratio); err != nil {
 			log.Fatalln(err)
 		}
-		log.Printf("Got ratio for sport %s: %d", sportname, ratio)
-		return ratio
+		log.Printf("[DB] Got ratio for sport %s: %s", sportname, ratio)
+		x , _ := strconv.ParseFloat(ratio, 32)
+		return x
 	}
-	return ""
+	return 0
 }

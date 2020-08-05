@@ -153,15 +153,14 @@ var file_subscribeservice_proto_rawDesc = []byte{
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x53, 0x70, 0x6f, 0x72, 0x74, 0x4e, 0x61, 0x6d,
 	0x65, 0x12, 0x1e, 0x0a, 0x0a, 0x53, 0x70, 0x6f, 0x72, 0x74, 0x52, 0x61, 0x74, 0x69, 0x6f, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x0a, 0x53, 0x70, 0x6f, 0x72, 0x74, 0x52, 0x61, 0x74, 0x69,
-	0x6f, 0x32, 0x5f, 0x0a, 0x16, 0x53, 0x75, 0x62, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x4f, 0x6e,
-	0x53, 0x70, 0x6f, 0x72, 0x74, 0x73, 0x4c, 0x69, 0x6e, 0x65, 0x73, 0x12, 0x45, 0x0a, 0x16, 0x53,
-	0x75, 0x62, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x4f, 0x6e, 0x53, 0x70, 0x6f, 0x72, 0x74, 0x73,
-	0x4c, 0x69, 0x6e, 0x65, 0x73, 0x12, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
-	0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x12, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x28, 0x01,
-	0x30, 0x01, 0x42, 0x15, 0x5a, 0x13, 0x4c, 0x69, 0x6e, 0x65, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73,
-	0x73, 0x6f, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x6f, 0x32, 0x50, 0x0a, 0x07, 0x47, 0x52, 0x50, 0x43, 0x41, 0x70, 0x69, 0x12, 0x45, 0x0a, 0x16,
+	0x53, 0x75, 0x62, 0x73, 0x63, 0x72, 0x69, 0x62, 0x65, 0x4f, 0x6e, 0x53, 0x70, 0x6f, 0x72, 0x74,
+	0x73, 0x4c, 0x69, 0x6e, 0x65, 0x73, 0x12, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
+	0x66, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x12, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x28,
+	0x01, 0x30, 0x01, 0x42, 0x15, 0x5a, 0x13, 0x4c, 0x69, 0x6e, 0x65, 0x50, 0x72, 0x6f, 0x63, 0x65,
+	0x73, 0x73, 0x6f, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -182,8 +181,8 @@ var file_subscribeservice_proto_goTypes = []interface{}{
 	(*Response)(nil), // 1: protobuf.Response
 }
 var file_subscribeservice_proto_depIdxs = []int32{
-	0, // 0: protobuf.SubscribeOnSportsLines.SubscribeOnSportsLines:input_type -> protobuf.Request
-	1, // 1: protobuf.SubscribeOnSportsLines.SubscribeOnSportsLines:output_type -> protobuf.Response
+	0, // 0: protobuf.GRPCApi.SubscribeOnSportsLines:input_type -> protobuf.Request
+	1, // 1: protobuf.GRPCApi.SubscribeOnSportsLines:output_type -> protobuf.Response
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -250,45 +249,45 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// SubscribeOnSportsLinesClient is the client API for SubscribeOnSportsLines service.
+// GRPCApiClient is the client API for GRPCApi service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type SubscribeOnSportsLinesClient interface {
-	SubscribeOnSportsLines(ctx context.Context, opts ...grpc.CallOption) (SubscribeOnSportsLines_SubscribeOnSportsLinesClient, error)
+type GRPCApiClient interface {
+	SubscribeOnSportsLines(ctx context.Context, opts ...grpc.CallOption) (GRPCApi_SubscribeOnSportsLinesClient, error)
 }
 
-type subscribeOnSportsLinesClient struct {
+type gRPCApiClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewSubscribeOnSportsLinesClient(cc grpc.ClientConnInterface) SubscribeOnSportsLinesClient {
-	return &subscribeOnSportsLinesClient{cc}
+func NewGRPCApiClient(cc grpc.ClientConnInterface) GRPCApiClient {
+	return &gRPCApiClient{cc}
 }
 
-func (c *subscribeOnSportsLinesClient) SubscribeOnSportsLines(ctx context.Context, opts ...grpc.CallOption) (SubscribeOnSportsLines_SubscribeOnSportsLinesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_SubscribeOnSportsLines_serviceDesc.Streams[0], "/protobuf.SubscribeOnSportsLines/SubscribeOnSportsLines", opts...)
+func (c *gRPCApiClient) SubscribeOnSportsLines(ctx context.Context, opts ...grpc.CallOption) (GRPCApi_SubscribeOnSportsLinesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_GRPCApi_serviceDesc.Streams[0], "/protobuf.GRPCApi/SubscribeOnSportsLines", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &subscribeOnSportsLinesSubscribeOnSportsLinesClient{stream}
+	x := &gRPCApiSubscribeOnSportsLinesClient{stream}
 	return x, nil
 }
 
-type SubscribeOnSportsLines_SubscribeOnSportsLinesClient interface {
+type GRPCApi_SubscribeOnSportsLinesClient interface {
 	Send(*Request) error
 	Recv() (*Response, error)
 	grpc.ClientStream
 }
 
-type subscribeOnSportsLinesSubscribeOnSportsLinesClient struct {
+type gRPCApiSubscribeOnSportsLinesClient struct {
 	grpc.ClientStream
 }
 
-func (x *subscribeOnSportsLinesSubscribeOnSportsLinesClient) Send(m *Request) error {
+func (x *gRPCApiSubscribeOnSportsLinesClient) Send(m *Request) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *subscribeOnSportsLinesSubscribeOnSportsLinesClient) Recv() (*Response, error) {
+func (x *gRPCApiSubscribeOnSportsLinesClient) Recv() (*Response, error) {
 	m := new(Response)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -296,42 +295,42 @@ func (x *subscribeOnSportsLinesSubscribeOnSportsLinesClient) Recv() (*Response, 
 	return m, nil
 }
 
-// SubscribeOnSportsLinesServer is the server API for SubscribeOnSportsLines service.
-type SubscribeOnSportsLinesServer interface {
-	SubscribeOnSportsLines(SubscribeOnSportsLines_SubscribeOnSportsLinesServer) error
+// GRPCApiServer is the server API for GRPCApi service.
+type GRPCApiServer interface {
+	SubscribeOnSportsLines(GRPCApi_SubscribeOnSportsLinesServer) error
 }
 
-// UnimplementedSubscribeOnSportsLinesServer can be embedded to have forward compatible implementations.
-type UnimplementedSubscribeOnSportsLinesServer struct {
+// UnimplementedGRPCApiServer can be embedded to have forward compatible implementations.
+type UnimplementedGRPCApiServer struct {
 }
 
-func (*UnimplementedSubscribeOnSportsLinesServer) SubscribeOnSportsLines(SubscribeOnSportsLines_SubscribeOnSportsLinesServer) error {
+func (*UnimplementedGRPCApiServer) SubscribeOnSportsLines(GRPCApi_SubscribeOnSportsLinesServer) error {
 	return status.Errorf(codes.Unimplemented, "method SubscribeOnSportsLines not implemented")
 }
 
-func RegisterSubscribeOnSportsLinesServer(s *grpc.Server, srv SubscribeOnSportsLinesServer) {
-	s.RegisterService(&_SubscribeOnSportsLines_serviceDesc, srv)
+func RegisterGRPCApiServer(s *grpc.Server, srv GRPCApiServer) {
+	s.RegisterService(&_GRPCApi_serviceDesc, srv)
 }
 
-func _SubscribeOnSportsLines_SubscribeOnSportsLines_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(SubscribeOnSportsLinesServer).SubscribeOnSportsLines(&subscribeOnSportsLinesSubscribeOnSportsLinesServer{stream})
+func _GRPCApi_SubscribeOnSportsLines_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(GRPCApiServer).SubscribeOnSportsLines(&gRPCApiSubscribeOnSportsLinesServer{stream})
 }
 
-type SubscribeOnSportsLines_SubscribeOnSportsLinesServer interface {
+type GRPCApi_SubscribeOnSportsLinesServer interface {
 	Send(*Response) error
 	Recv() (*Request, error)
 	grpc.ServerStream
 }
 
-type subscribeOnSportsLinesSubscribeOnSportsLinesServer struct {
+type gRPCApiSubscribeOnSportsLinesServer struct {
 	grpc.ServerStream
 }
 
-func (x *subscribeOnSportsLinesSubscribeOnSportsLinesServer) Send(m *Response) error {
+func (x *gRPCApiSubscribeOnSportsLinesServer) Send(m *Response) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *subscribeOnSportsLinesSubscribeOnSportsLinesServer) Recv() (*Request, error) {
+func (x *gRPCApiSubscribeOnSportsLinesServer) Recv() (*Request, error) {
 	m := new(Request)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -339,14 +338,14 @@ func (x *subscribeOnSportsLinesSubscribeOnSportsLinesServer) Recv() (*Request, e
 	return m, nil
 }
 
-var _SubscribeOnSportsLines_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "protobuf.SubscribeOnSportsLines",
-	HandlerType: (*SubscribeOnSportsLinesServer)(nil),
+var _GRPCApi_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "protobuf.GRPCApi",
+	HandlerType: (*GRPCApiServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "SubscribeOnSportsLines",
-			Handler:       _SubscribeOnSportsLines_SubscribeOnSportsLines_Handler,
+			Handler:       _GRPCApi_SubscribeOnSportsLines_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

@@ -1,47 +1,23 @@
 package main
 
 import (
+	"LineProcessor/api"
 	"LineProcessor/db_storage"
+	"LineProcessor/http_workers"
 	pb "LineProcessor/proto"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"io"
-	"io/ioutil"
-	"log"
+	//"log"
 	"net"
-	"net/http"
 	"os"
-	"strings"
 	"time"
-	"unicode"
+	log "github.com/sirupsen/logrus"
 )
 
 var httpserveraddr string = "http://127.0.0.1:8000/api/v1/lines/"
-
-func RequestWorker(sportname string, timeout int, db *sql.DB) {
-	var ratiovalue string
-
-	for {
-		response, err := http.Get(httpserveraddr + sportname)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		ratiovalue = strings.TrimFunc(string(body), func(r rune) bool {
-			return !unicode.IsDigit(r)
-		})
-
-		log.Println(sportname+" worker:", ratiovalue)
-
-		db_storage.PutSportLine(db, sportname, ratiovalue)
-		time.Sleep(time.Duration(timeout) * time.Second)
-	}
-}
 
 const (
 	host     = "localhost"
@@ -52,80 +28,80 @@ const (
 )
 
 type server struct {
+	pb.UnimplementedGRPCApiServer
 	Db_Ptr *sql.DB
 }
 
-func (s server) SubscribeOnSportsLines(linesServer pb.SubscribeOnSportsLines_SubscribeOnSportsLinesServer) error {
-	log.Println("Server started")
-	ctx := linesServer.Context()
+func (s *server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLinesServer) error {
+		reqHandler := make(chan *pb.Request)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		req, err := linesServer.Recv()
-		if err == io.EOF {
-			log.Println("exit")
-			return nil
-		}
-		if err != nil {
-			log.Printf("receive error %v", err)
-			continue
-		}
-
-		fmt.Printf("Got new request\nSports: %s", req.Sport)
-		fmt.Printf("Time interval: %d", req.TimeInterval)
+		go func () {
+			request := pb.Request{
+				Sport:        nil,
+				TimeInterval: 0,
+			}
+			isStarted := false
+			for {
+				select {
+				case newreq := <- reqHandler:
+					if !isStarted {
+						isStarted = true
+					}
+					request = *newreq
+				default :
+					if isStarted {
+						for _, sport := range request.Sport {
+							log.Println("DB select for: ", sport)
+							resp := pb.Response{
+								SportName:  sport,
+								SportRatio: float32(db_storage.GetSportRatio(s.Db_Ptr, sport)),
+							}
+							if err := stream.Send(&resp); err != nil {
+								log.Printf("send error %v", err)
+							}
+							log.Printf("Response for %s was sent!", sport)
+						}
+					}
+				}
+				time.Sleep(time.Second * 3)
+			}
+		} ()
 
 		for {
-			for _, sport := range req.Sport {
-				fmt.Printf("Getting database select for sport: %s", sport)
-				resp := pb.Response{
-					SportName:  sport,
-					SportRatio: 321.3,
-				}
-				if err := linesServer.Send(&resp); err != nil {
-					log.Printf("send error %v", err)
-				}
-				log.Println("send new response:")
-				log.Println("Sport: ", sport)
+			req, err := stream.Recv()
+			if err == io.EOF {
+				return nil
 			}
-			time.Sleep(time.Duration(req.TimeInterval) * time.Second)
+			if err != nil {
+				return err
+			}
+			log.Println("Got a request for sports:", req.Sport)
+			reqHandler <- req
 		}
-	}
 }
 
 func main() {
 	db := db_storage.Storage_Init(host, port, user, password, dbname)
 	defer db.Close()
 
-	go RequestWorker("BASEBALL", 3, db)
-	go RequestWorker("SOCCER", 10, db)
-	go RequestWorker("FOOTBALL", 10, db)
+	go http_workers.RequestWorker("BASEBALL", 3, db, httpserveraddr)
+	go http_workers.RequestWorker("SOCCER", 10, db, httpserveraddr)
+	go http_workers.RequestWorker("FOOTBALL", 10, db, httpserveraddr)
 
-	//http.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request){
-	//	if db_storage.DbIsConnected(db) {
-	//		w.WriteHeader(http.StatusOK)
-	//		fmt.Fprint(w, "DB CONNECTED")
-	//	} else {
-	//		w.WriteHeader(http.StatusServiceUnavailable)
-	//		fmt.Fprint(w, "DB NOT CONNECTED")
-	//	}
-	//
-	//})
-	//http.ListenAndServe("localhost:8181", nil)
+	api.Status_Api_Init(db)
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalln("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
-	pb.RegisterSubscribeOnSportsLinesServer(s, server{Db_Ptr: db})
+	grpcServer := grpc.NewServer()
+	instance := new(server)
+	instance.Db_Ptr = db
+	pb.RegisterGRPCApiServer(grpcServer, instance)
+	grpcServer.Serve(lis)
 
-	if err := s.Serve(lis); err != nil {
+	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
