@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  linesprovider:
+    image: antonboom/lines-provider
+    ports:
+      - "8000:8000"
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_DB: LinesStorage
+    ports:
+      - "5432:5432"
+
+  linesprocessor:
+    build: .
+    network_mode: host
+    depends_on:
+      - linesprovider
+      - db
