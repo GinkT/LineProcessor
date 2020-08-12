@@ -11,17 +11,17 @@ import (
 var db_ptr *sql.DB
 
 // Запуск Listener'а, передача указателя на БД, инициализация хэндлеров
-func StatusCheckInit(db *sql.DB) {
-	port := "8181"
+func StatusCheckInit(db *sql.DB, httpServAddr string) {
+	port := "8080"
 	db_ptr = db
 
 	logrus.Infoln("Trying to initialize Status Check HTTP API on port:", port)
 	http.HandleFunc("/ready", CheckConnection)
 
-	go http.ListenAndServe("localhost:" + port, nil)
+	go http.ListenAndServe(httpServAddr + ":8080", nil)
 }
 
-// Описание /ready API
+// /ready API
 func CheckConnection(w http.ResponseWriter, r *http.Request) {
 	if db_storage.IsConnected(db_ptr) {
 		w.WriteHeader(http.StatusOK)

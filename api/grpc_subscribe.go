@@ -76,20 +76,20 @@ func (s *Server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLines
 	}
 }
 
-func GrpcInit(db *sql.DB, grpcAddress string) {
-	lis, err := net.Listen("tcp", grpcAddress + ":50051")
+func GrpcInit(db *sql.DB, grpcServAddr string) {
+	logrus.Infoln("Starting GRPC Server!")
+	lis, err := net.Listen("tcp", grpcServAddr + ":50051")
 	if err != nil {
-		//logrus.Fatalln("Failed to listen: %v", err)
+		logrus.Fatalln("Failed to listen: %v", err)
 	}
-
 	grpcServer := grpc.NewServer()
 	instance := new(Server)
 	instance.dbPtr = db
-
 	pb.RegisterGRPCApiServer(grpcServer, instance)
 	grpcServer.Serve(lis)
 
+
 	if err := grpcServer.Serve(lis); err != nil {
-		//logrus.Fatalln("Failed to serve GRPC server: %v", err)
+		logrus.Fatalln("Failed to serve GRPC server: %v", err)
 	}
 }

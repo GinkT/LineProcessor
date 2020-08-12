@@ -12,9 +12,9 @@ import (
 )
 
 // Воркер для чтения HTTP сервера
-func RequestWorker(sportName string, timeoutInterval int, db *sql.DB, httpAddress string) {
+func RequestWorker(sportName string, timeoutInterval int, db *sql.DB) {
 	var sportRatio string
-	httpAddress = "http://" + httpAddress + ":8000/api/v1/lines/"
+	httpAddress := "http://linesprovider:8000/api/v1/lines/"
 
 	logrus.Infoln(sportName, " worker initialized!")
 	for {

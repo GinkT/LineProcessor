@@ -5,45 +5,26 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"strings"
 )
 
 // Подключение к БД
 func StorageInit(host string, port int, user string, password string, dbname string) *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	psqlInfo := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+		user, password, host, port, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-	logrus.Infoln("Database was succesfully connected!")
-	createTables(db, "SOCCER", "BASEBALL", "FOOTBALL")
+	logrus.Infoln("Database was successfully connected!")
 	return db
-}
-
-func createTables(db *sql.DB, args ...string) {
-	for _, sport := range args {
-		sqlStatement := `
-			CREATE TABLE IF NOT EXISTS ` + sport + ` (
-				SportName   text PRIMARY KEY,
-				SportRatio  double precision NOT NULL
-			);
-		`
-		_, err := db.Exec(sqlStatement)
-		if err != nil {
-			logrus.Errorln(err)
-			return
-		}
-		logrus.Infoln("Created table for: ", sport)
-	}
-	logrus.Infoln("Created tables: ", args)
 }
 
 // Проверка подключения к БД
 func IsConnected(db *sql.DB) bool {
 	err := db.Ping()
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.Errorln(err)
 		return false
 	}
 	logrus.Infoln("Database check successfully gone!")
@@ -53,11 +34,11 @@ func IsConnected(db *sql.DB) bool {
 // Пуш линии спорта в бд
 func PutSportLine(db *sql.DB, sportName string, ratioValue string) {
 	sqlStatement := `
-			INSERT INTO "` + sportName + `"
+			INSERT INTO public."` + strings.ToLower(sportName) + `"
 			VALUES($1, $2)
-			ON CONFLICT ("SportName")
+			ON CONFLICT ("sportname")
 			DO
-			UPDATE SET "SportRatio" = $2
+			UPDATE SET "sportratio" = $2
 		`
 	_, err := db.Exec(sqlStatement, sportName, ratioValue)
 	if err != nil {
@@ -69,7 +50,7 @@ func PutSportLine(db *sql.DB, sportName string, ratioValue string) {
 // Пулл линии спорта из БД
 func GetSportRatio(db *sql.DB, sportName string) string {
 	sqlStatement := `
-			SELECT "SportRatio" FROM public.` + `"` + sportName + `"`
+			SELECT "sportratio" FROM public.` + `"` + strings.ToLower(sportName) + `"`
 
 	rows, err := db.Query(sqlStatement)
 	if err != nil {

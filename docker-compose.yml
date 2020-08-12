@@ -5,6 +5,8 @@ services:
     image: antonboom/lines-provider
     ports:
       - "8000:8000"
+    networks:
+      - fullstack
 
   db:
     image: postgres
@@ -14,10 +16,32 @@ services:
       POSTGRES_DB: LinesStorage
     ports:
       - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - fullstack
 
   linesprocessor:
     build: .
-    network_mode: host
+    ports:
+    - "8080:8080"
+    - "50051:50051"
+    environment:
+      - HTTP_SERVER_ADDR=0.0.0.0
+      - GRPC_SERVER_ADDR=0.0.0.0
+      - BASEBALL_INT=15
+      - FOOTBALL_INT=15
+      - SOCCER_INT=15
+      - LOG_LEVEL=info
     depends_on:
       - linesprovider
       - db
+    links:
+      - "linesprovider"
+      - "db"
+    networks:
+      - fullstack
+
+networks:
+  fullstack:
+    driver: bridge
