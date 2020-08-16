@@ -32,7 +32,11 @@ func IsConnected(db *sql.DB) bool {
 }
 
 // Пуш линии спорта в бд
-func PutSportLine(db *sql.DB, sportName string, ratioValue string) {
+func PutSportLine(db *sql.DB, sportName string, ratioValue string) sql.Result {
+	tx, err := db.Begin()
+	if err != nil {
+		logrus.Errorln("Error beginning transaction in Database:", err)
+	}
 	sqlStatement := `
 			INSERT INTO public."` + strings.ToLower(sportName) + `"
 			VALUES($1, $2)
@@ -40,15 +44,25 @@ func PutSportLine(db *sql.DB, sportName string, ratioValue string) {
 			DO
 			UPDATE SET "sportratio" = $2
 		`
-	_, err := db.Exec(sqlStatement, sportName, ratioValue)
+	var res sql.Result
+	res, err = tx.Exec(sqlStatement, sportName, ratioValue)
 	if err != nil {
-		logrus.Errorln(err)
+		logrus.Errorln("Error exec:", err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		logrus.Errorln("Error committing transaction", err)
 	}
 	logrus.Tracef("Pushed sport %s and value %s to DB", sportName, ratioValue)
+	return res
 }
 
 // Пулл линии спорта из БД
 func GetSportRatio(db *sql.DB, sportName string) string {
+	tx, err := db.Begin()
+	if err != nil {
+		logrus.Errorln("Error beginning transaction in Database:", err)
+	}
 	sqlStatement := `
 			SELECT "sportratio" FROM public.` + `"` + strings.ToLower(sportName) + `"`
 
@@ -57,6 +71,11 @@ func GetSportRatio(db *sql.DB, sportName string) string {
 		logrus.Errorln(err)
 	}
 	defer rows.Close()
+
+	err = tx.Commit()
+	if err != nil {
+		logrus.Errorln("Error committing transaction", err)
+	}
 
 	for rows.Next() {
 		var ratio string

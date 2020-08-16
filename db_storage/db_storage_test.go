@@ -1,57 +1,73 @@
 package db_storage
 
 import (
-	_ "github.com/lib/pq"
+	//"database/sql"
+	//"github.com/sirupsen/logrus"
+	//"strings"
+
+	"database/sql/driver"
+	//"fmt"
 	"testing"
+
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "qwerty"
-	dbname   = "LinesStorage"
-)
 
-func TestStorageInit(t *testing.T)  {
-	StorageInit(host, port, user, password, dbname)
-}
-
-func TestIsConnected(t *testing.T) {
-	db := StorageInit(host, port, user, password, dbname)
-	IsConnected(db)
-}
-
-
-type testSportRatio struct {
+type sport_pair struct {
 	sportName string
-	ratioValue string
+	sportRatio string
 }
 
-var testValues = []testSportRatio {
-	{ "SOCCER", "1.325"},
-	{ "FOOTBALL", "0.321"},
-	{ "BASEBALL", "3.213"},
-	{ "SOCCER", "2.123"},
-	{ "SOCCER", "0.369"},
-	{ "BASEBALL", "1.461"},
-	{ "SOCCER", "0.549"},
-	{ "BASEBALL", "2.1227"},
-	{ "SOCCER", "0.005"},
-	{ "FOOTBALL", "0.1"},
-	{ "FOOTBALL", "2.001"},
+var tests = []sport_pair {
+	{ "soccer", "3.123", },
+	{ "football", "2.549", },
+	{ "baseball", "1.091", },
+	{ "soccer", "4.129", },
+	{ "baseball", "1.901", },
 }
 
-func TestGetPutSportline(t *testing.T) {
-	db := StorageInit(host, port, user, password, dbname)
-	for _, pair := range testValues {
-		PutSportLine(db, pair.sportName, pair.ratioValue)
-		testValue := GetSportRatio(db, pair.sportName)
-		if testValue != pair.ratioValue {
-			t.Error(
-				"Pushed to DB: ", pair.sportName, pair.ratioValue,
-				"Pulled after:", pair.sportName, testValue,
-			)
-		}
+func TestPutSportLine(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	for _, pair := range tests {
+		mock.ExpectBegin()
+		mock.ExpectExec(`INSERT INTO public\."` + pair.sportName +`"`).WithArgs(
+			driver.Value(pair.sportName),
+			driver.Value(pair.sportRatio),
+		).WillReturnResult(sqlmock.NewResult(1, 1))
+		mock.ExpectCommit()
+	}
+
+	for _, pair := range tests {
+		PutSportLine(db, pair.sportName, pair.sportRatio)
+	}
+
+	// we make sure that all expectations were met
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatalf("there were unfulfilled expections: %s", err)
+	}
+}
+
+func TestGetSportRatio(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	expectedRows := sqlmock.NewRows([]string{"sportratio"}).AddRow("3.123")
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(`SELECT "sportratio" FROM`).WillReturnRows(expectedRows)
+	mock.ExpectCommit()
+
+	GetSportRatio(db, "soccer")
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatalf("there were unfulfilled expections: %s", err)
 	}
 }

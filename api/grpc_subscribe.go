@@ -3,6 +3,7 @@ package api
 import (
 	"LineProcessor/db_storage"
 	pb "LineProcessor/proto"
+
 	"database/sql"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -80,7 +81,7 @@ func GrpcInit(db *sql.DB, grpcServAddr string) {
 	logrus.Infoln("Starting GRPC Server!")
 	lis, err := net.Listen("tcp", grpcServAddr + ":50051")
 	if err != nil {
-		logrus.Fatalln("Failed to listen: %v", err)
+		logrus.Fatalln("Failed to listen:", err)
 	}
 	grpcServer := grpc.NewServer()
 	instance := new(Server)
@@ -90,6 +91,6 @@ func GrpcInit(db *sql.DB, grpcServAddr string) {
 
 
 	if err := grpcServer.Serve(lis); err != nil {
-		logrus.Fatalln("Failed to serve GRPC server: %v", err)
+		logrus.Fatalln("Failed to serve GRPC server:", err)
 	}
 }
