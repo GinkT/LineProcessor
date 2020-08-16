@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+
+
 var db_ptr *sql.DB
 
 // Запуск Listener'а, передача указателя на БД, инициализация хэндлеров

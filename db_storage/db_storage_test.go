@@ -1,12 +1,7 @@
 package db_storage
 
 import (
-	//"database/sql"
-	//"github.com/sirupsen/logrus"
-	//"strings"
-
 	"database/sql/driver"
-	//"fmt"
 	"testing"
 
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"

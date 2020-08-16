@@ -32,7 +32,7 @@ services:
       - BASEBALL_INT=15
       - FOOTBALL_INT=15
       - SOCCER_INT=15
-      - LOG_LEVEL=info
+      - LOG_LEVEL=trace
     depends_on:
       - linesprovider
       - db

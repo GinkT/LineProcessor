@@ -62,7 +62,7 @@ func main() {
 	go http_workers.RequestWorker("FOOTBALL", Conf.footballInterval, db)
 
 	// Подключение API
-	api.StatusCheckInit(db, Conf.httpServerAddr)
+	//api.StatusCheckInit(db, Conf.httpServerAddr)
 	api.GrpcInit(db, Conf.grpcServerAddr)
 }
 
