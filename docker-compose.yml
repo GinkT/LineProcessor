@@ -25,7 +25,7 @@ services:
     build: .
     ports:
     - "8080:8080"
-    - "50051:50051"
+    - "9090:9090"
     environment:
       - HTTP_SERVER_ADDR=0.0.0.0
       - GRPC_SERVER_ADDR=0.0.0.0

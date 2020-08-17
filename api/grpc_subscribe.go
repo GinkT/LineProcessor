@@ -18,6 +18,11 @@ type Server struct {
 	dbPtr *sql.DB
 }
 
+type pairNameRatio struct {
+	sportName string
+	sportRatio float32
+}
+
 func (s *Server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLinesServer) error {
 	reqHandler := make(chan *pb.Request)
 	ctx := stream.Context()
@@ -26,8 +31,9 @@ func (s *Server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLines
 	go func () {
 		request := pb.Request{
 			Sport:        nil,
-			TimeInterval: 0,
+			TimeInterval: 3,
 		}
+		var initialResponse []pairNameRatio
 		isStarted := false
 		for {
 			select {
@@ -36,26 +42,47 @@ func (s *Server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLines
 					isStarted = true
 				}
 				request = *newreq
+				for _, sport := range request.Sport {
+					sportRatio_float, err := strconv.ParseFloat(db_storage.GetSportRatio(s.dbPtr, sport), 32)
+					if err != nil {
+						logrus.Warningln("Convert error:", err)
+					}
+					resp := pb.Response{
+						SportName:  sport,
+						SportRatio: float32(sportRatio_float),
+					}
+					if err := stream.Send(&resp); err != nil {
+						logrus.Errorln("GRPC stream send error:", err)
+						return
+					}
+					initialResponse = append(initialResponse, pairNameRatio{
+						sportName:  sport,
+						sportRatio: float32(sportRatio_float),
+					})
+					logrus.Tracef("Sent initial response for sport: %s | value: %f", resp.SportName, resp.SportRatio)
+				}
+
 			default :
 				if isStarted {
-					for _, sport := range request.Sport {
-						sportRatio_str, err := strconv.ParseFloat(db_storage.GetSportRatio(s.dbPtr, sport), 32)
+					for i, sport := range request.Sport {
+						sportRatio_float, err := strconv.ParseFloat(db_storage.GetSportRatio(s.dbPtr, sport), 32)
 						if err != nil {
 							logrus.Warningln("Convert error:", err)
 						}
+						deltaValue := initialResponse[i].sportRatio - float32(sportRatio_float)
 						resp := pb.Response{
 							SportName:  sport,
-							SportRatio: float32(sportRatio_str),
+							SportRatio: deltaValue,
 						}
 						if err := stream.Send(&resp); err != nil {
 							logrus.Errorln("GRPC stream send error:", err)
 							return
 						}
-						logrus.Tracef("Sent response for sport: %s | value: %f", resp.SportName, resp.SportRatio)
+						logrus.Tracef("Sent delta response for sport: %s | value: %f | delva value %f", resp.SportName, sportRatio_float, deltaValue)
 					}
 				}
 			}
-			time.Sleep(time.Second * 3)
+			time.Sleep(time.Second * time.Duration(request.TimeInterval))
 		}
 	} ()
 
@@ -78,17 +105,15 @@ func (s *Server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLines
 }
 
 func GrpcInit(db *sql.DB, grpcServAddr string) {
-	lis, err := net.Listen("tcp", "0.0.0.0:50051")
+	grpcServer := grpc.NewServer()
+	instance := new(Server)
+	instance.dbPtr = db
+	pb.RegisterGRPCApiServer(grpcServer, instance)
+
+	lis, err := net.Listen("tcp", ":9090")
 	if err != nil {
 		logrus.Fatalln("Failed to listen:", err)
 	}
-	grpcServer := grpc.NewServer()
-	instance := Server{
-		UnimplementedGRPCApiServer: pb.UnimplementedGRPCApiServer{},
-		dbPtr:                      db,
-	}
-
-	pb.RegisterGRPCApiServer(grpcServer, &instance)
 
 	logrus.Infoln("Starting to serve GRPC Server!")
 	if err := grpcServer.Serve(lis); err != nil {

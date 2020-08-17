@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// Параметры подключения к БД
 const (
 	host     = "db"
 	port     = 5432
@@ -17,16 +18,6 @@ const (
 	password = "qwerty"
 	dbname   = "LinesStorage"
 )
-
-//var (
-//	grpcAddress = flag.String("gaddr", "", "Адрес GRPC сервера")
-//	httpAddress = flag.String("haddr", "linesprovider", "Адрес HTTP сервера")
-//	//linesproviderTimeInterval = flag.Int("time", 5, "Интервал синхронизации хранилища с Lines Provider")
-//	logLevel = flag.String("log", "trace", "Уровень логирования")
-//	baseballTimeInterval = flag.Int("b", 15, "Интервал синхронизации линии спорта BASEBALL")
-//	soccerTimeInterval = flag.Int("s", 5, "Интервал синхронизации линии спорта  SOCCER")
-//	footballTimeInterval = flag.Int("f", 5, "Интервал синхронизации линии спорта FOOTBALL")
-//)
 
 type configuration struct {
 	httpServerAddr string
@@ -38,6 +29,16 @@ type configuration struct {
 }
 
 var Conf configuration
+
+// -- Для тестирования без использования докера (задание конфигурации локально)
+//var Conf = configuration {
+//	httpServerAddr:   "",
+//	grpcServerAddr:   "",
+//	logLevel:         "trace",
+//	baseballInterval: 120,
+//	soccerInterval:   120,
+//	footballInterval: 120,
+//}
 
 func main() {
 	logrus.SetFormatter(formLogger())
@@ -62,7 +63,7 @@ func main() {
 	go http_workers.RequestWorker("FOOTBALL", Conf.footballInterval, db)
 
 	// Подключение API
-	//api.StatusCheckInit(db, Conf.httpServerAddr)
+	api.StatusCheckInit(db, Conf.httpServerAddr)
 	api.GrpcInit(db, Conf.grpcServerAddr)
 }
 
