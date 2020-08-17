@@ -41,7 +41,8 @@ func (s *Server) SubscribeOnSportsLines(stream pb.GRPCApi_SubscribeOnSportsLines
 				if !isStarted {
 					isStarted = true
 				}
-				request = *newreq
+				request.Sport = newreq.Sport
+				request.TimeInterval = newreq.TimeInterval
 				for _, sport := range request.Sport {
 					sportRatio_float, err := strconv.ParseFloat(db_storage.GetSportRatio(s.dbPtr, sport), 32)
 					if err != nil {
