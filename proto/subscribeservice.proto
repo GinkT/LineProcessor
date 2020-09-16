@@ -4,10 +4,6 @@ package protobuf;
 
 option go_package = "LineProcessor/proto";
 
-service GRPCApi {
-    rpc SubscribeOnSportsLines(stream Request) returns (stream Response) {}
-}
-
 message Request {
     repeated string sport = 1;
     int32 timeInterval = 2;
@@ -16,4 +12,8 @@ message Request {
 message Response {
     string SportName = 1;
     float SportRatio = 2;
+}
+
+service GRPCApi {
+    rpc SubscribeOnSportsLines(stream Request) returns (stream Response) {}
 }
